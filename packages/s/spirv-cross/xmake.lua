@@ -19,9 +19,7 @@ package("spirv-cross")
     end
 
     on_load(function (package)
-        local links = {"spirv-cross-c", "spirv-cross-cpp", "spirv-cross-reflect",
-                       "spirv-cross-msl", "spirv-cross-util", "spirv-cross-hlsl",
-                       "spirv-cross-glsl", "spirv-cross-core"}
+        local links = { "spirv-cross-core" }
         for _, link in ipairs(links) do
             if package:is_plat("windows") and package:is_debug() then
                 link = link .. "d"
@@ -31,7 +29,16 @@ package("spirv-cross")
     end)
 
     on_install("windows", "linux", "macosx", "mingw", function (package)
-        local configs = {"-DSPIRV_CROSS_ENABLE_TESTS=OFF"}
+        local configs = {
+            "-DSPIRV_CROSS_ENABLE_TESTS=OFF",
+            "-DSPIRV_CROSS_CLI=OFF",
+            "-DSPIRV_CROSS_ENABLE_HLSL=OFF",
+            "-DSPIRV_CROSS_ENABLE_MSL=OFF",
+            "-DSPIRV_CROSS_ENABLE_CPP=OFF",
+            "-DSPIRV_CROSS_ENABLE_REFLECT=OFF",
+            "-DSPIRV_CROSS_ENABLE_C_API=OFF",
+            "-DSPIRV_CROSS_ENABLE_UTIL=OFF",
+        }
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
 
         local cxflags
@@ -55,10 +62,4 @@ package("spirv-cross")
         import("package.tools.cmake").install(package, configs, {cxflags = cxflags})
         package:addenv("PATH", "bin")
     end)
-
-    on_test(function (package)
-        if not package:is_cross() then
-            os.vrun("spirv-cross --help")
-        end
-        assert(package:has_cfuncs("spvc_get_version", {includes = "spirv_cross/spirv_cross_c.h"}))
-    end)
+package_end()
