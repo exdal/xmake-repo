@@ -4,11 +4,13 @@ package("spirv-cross")
     set_license("Apache-2.0")
 
     add_urls("https://github.com/KhronosGroup/SPIRV-Cross.git")
+
     add_versions("1.2.154+1", "e6f5ce6b8998f551f3400ad743b77be51bbe3019")
     add_versions("1.2.162+0", "6d10da0224bd3214c9a507832e62d9fb6ae9620d")
     add_versions("1.2.189+1", "0e2880ab990e79ce6cc8c79c219feda42d98b1e8")
     add_versions("1.3.231+1", "f09ba2777714871bddb70d049878af34b94fa54d")
     add_versions("1.3.268+0", "2de1265fca722929785d9acdec4ab728c47a0254")
+    add_versions("1.4.309+0", "2c32b6bf86f3c4a5539aa1f0bacbd59fe61759cf")
 
     add_configs("exceptions", {description = "Enable exception handling", default = true, type = "boolean"})
 
@@ -37,8 +39,7 @@ package("spirv-cross")
             "-DSPIRV_CROSS_ENABLE_CPP=OFF",
             "-DSPIRV_CROSS_ENABLE_REFLECT=OFF",
             "-DSPIRV_CROSS_ENABLE_C_API=OFF",
-            "-DSPIRV_CROSS_ENABLE_UTIL=OFF",
-            "-DSPIRV_CROSS_SKIP_INSTALL=ON"
+            "-DSPIRV_CROSS_ENABLE_UTIL=OFF"
         }
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
 
