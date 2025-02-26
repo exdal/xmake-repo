@@ -38,6 +38,7 @@ package("spirv-cross")
             "-DSPIRV_CROSS_ENABLE_REFLECT=OFF",
             "-DSPIRV_CROSS_ENABLE_C_API=OFF",
             "-DSPIRV_CROSS_ENABLE_UTIL=OFF",
+            "-DSPIRV_CROSS_SKIP_INSTALL=ON"
         }
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
 
@@ -59,7 +60,11 @@ package("spirv-cross")
         else
             table.insert(configs, "-DSPIRV_CROSS_SHARED=OFF")
         end
+
         import("package.tools.cmake").install(package, configs, {cxflags = cxflags})
+
+        os.cp("*.hpp", package:installdir("include"))
         package:addenv("PATH", "bin")
     end)
 package_end()
+
