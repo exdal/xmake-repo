@@ -21,7 +21,7 @@ function add_slang_target(name, options)
         set_default(options.default or false)
         set_languages("cxx17")
         set_warnings("extra")
-        add_rpathdirs("@executable_path")
+        add_rpathdirs("$ORIGIN")
 
         on_config(function (target)
             if is_mode("debug") then
@@ -63,6 +63,8 @@ function add_slang_target(name, options)
         from_table(options.defines, add_defines)
         from_table(options.config_files, add_configfiles)
         from_table(options.ldflags, add_ldflags)
+        from_table(options.linkdirs, add_linkdirs)
+        from_table(options.links, add_links)
 
         if options.export_macro_prefix then
             local export_type_as = options.export_type_as or ""
@@ -90,8 +92,18 @@ function add_slang_target(name, options)
             set_targetdir(options.output_dir)
         end
 
+        if options.install_dir then
+            set_installdir(options.install_dir)
+        end
+
         if options.before_build then
             before_build(options.before_build)
+        end
+
+        if options.kind == "binary" then
+            add_cxxflags("-fPIE", { tools = { "clang", "gcc" } })
+        else
+            add_cxxflags("-fPIC", { tools = { "clang", "gcc" } })
         end
 
         set_enabled(not options.enabled or false)

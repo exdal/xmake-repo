@@ -19,7 +19,7 @@ target("prelude")
         for _, file_path in ipairs(os.files("$(scriptdir)/*-prelude.h")) do
             local file_name = path.filename(file_path)
             print("Generating prelude for " .. file_path)
-            os.vrunv("$(projectdir)/generators/slang-embed", {
+            os.vrunv("$(buildir)/generators/slang-embed", {
                 file_path, path.join(os.scriptdir(), file_name .. ".cpp")
             })
         end

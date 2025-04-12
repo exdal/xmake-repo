@@ -22,7 +22,7 @@ add_slang_target("slang-embedded-core-module", {
         { "./slang-embedded-core-module.cpp" }
     },
     deps = {
-        { "core", "slang-bootstrap", { public = false } }
+        { "core", "slang-without-embedded-core-module", "slang-bootstrap", { public = false } }
     },
 --  ── common args end ─────────────────────────────────────────────────
     defines = {
@@ -33,7 +33,7 @@ add_slang_target("slang-embedded-core-module", {
         local output_dir = config.buildir()
         local generated_header = path.join(output_dir, "slang-core-module-generated.h")
 
-        os.vrunv("$(projectdir)/generators/slang-bootstrap", {
+        os.vrunv("$(buildir)/generators/slang-bootstrap", {
             "-archive-type", "riff-lz4", "-save-core-module-bin-source", generated_header
         })
     end
@@ -44,18 +44,14 @@ add_slang_target("slang-embedded-core-module-source", {
     export_macro_prefix = "SLANG",
     export_type_as = "shared",
     includes = {
-        { "$(buildir)/core-module-meta", { public = false } }
+        { "$(projectdir)/source/slang", "$(buildir)/core-module-meta", { public = false } }
     },
     files = {
         { "./slang-embedded-core-module-source.cpp" }
     },
-    deps = { {
-        "core",
-        "slang-generate",
-        "slang-capability-defs",
-        "slang-reflect-headers",
-        { public = false },
-    } },
+    deps = {
+        { "core", "slang-generate", "slang-capability-defs", "slang-reflect-headers", { public = false } }
+    },
     packages = {
         { "spirv-headers" }
     },
@@ -74,7 +70,7 @@ add_slang_target("slang-embedded-core-module-source", {
         table.insert(args, output_dir)
 
         os.mkdir(output_dir)
-        os.vrunv("$(projectdir)/generators/slang-generate", args)
+        os.vrunv("$(buildir)/generators/slang-generate", args)
     end
 })
 -- add_slang_target("slang-no-embedded-core-module-source", core_module_source_common_args)

@@ -5,7 +5,6 @@ add_requires("spirv-headers 1.4.309+0")
 add_requires("spirv-tools 1.4.309+0")
 add_requires("glslang 1.4.309+0")
 
-includes("slang_target.lua")
 includes("core")
 includes("compiler-core")
 includes("slang-core-module")
@@ -17,6 +16,6 @@ add_slang_target("slang-build-all", {
     default = true,
     fence = true,
     deps = {
-        { "slang-without-embedded-core-module", "slang", "slang-glslang" }
+        { "slang", "slang-glslang" }
     },
 })

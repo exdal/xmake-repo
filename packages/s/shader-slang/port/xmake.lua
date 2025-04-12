@@ -13,7 +13,6 @@ add_cxxflags(
     { force = true, tools = { "clang", "gcc", "clang_cl" } }
 )
 
-add_cxxflags("-fPIC", { tools = { "clang", "gcc" } })
 set_encodings("utf-8")
 
 set_project("slang")
@@ -23,6 +22,7 @@ if has_config("slang_version") then
     set_configvar("SLANG_VERSION_FULL", version)
 end
 
+includes("slang_target.lua")
 includes("tools")
 includes("source")
 includes("prelude")

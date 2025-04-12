@@ -7,19 +7,19 @@ add_slang_target("slang-capability-defs", {
     includes = {
         { "$(buildir)/capabilities", "$(projectdir)/source/slang", { public = true } }
     },
-    before_build = function ()
+    before_build = function()
         import("core.project.config")
         local output_dir = path.join(config.buildir(), "capabilities")
         os.mkdir(output_dir)
 
         for _, file_path in ipairs(os.files("$(scriptdir)/*.capdef")) do
             print("Generating capability defs for " .. file_path)
-            os.vrunv("$(projectdir)/generators/slang-capability-generator", {
+            os.vrunv("$(buildir)/generators/slang-capability-generator", {
                 file_path, "--target-directory", output_dir, "--doc",
                 path.join(os.projectdir(), "docs/dummy.md")
             })
-      end
-   end,
+        end
+    end,
 })
 
 add_slang_target("slang-capability-lookup", {
@@ -33,22 +33,24 @@ add_slang_target("slang-capability-lookup", {
 })
 
 add_slang_target("slang-lookup-tables", {
-    kidn = "object",
+    kind = "object",
     deps = {
         { "slang-lookup-generator", "slang-spirv-embed-generator" }
     },
-    files = { {
-        "$(buildir)/slang-lookup-tables/slang-lookup-GLSLstd450.cpp",
-        "$(buildir)/slang-lookup-tables/slang-spirv-core-grammar-embed.cpp",
-        { always_added = true }
-    } },
+    files = {
+        {
+            "$(buildir)/slang-lookup-tables/slang-lookup-GLSLstd450.cpp",
+            "$(buildir)/slang-lookup-tables/slang-spirv-core-grammar-embed.cpp",
+            { always_added = true }
+        }
+    },
     packages = {
         { "spirv-headers" }
     },
-    before_build = function (target)
+    before_build = function(target)
         import("core.project.config")
         local output_dir = path.join(config.buildir(), "slang-lookup-tables")
-        local spirv_path = target:pkg("slang-spirv-headers"):installdir():gsub("\\", "/")
+        local spirv_path = target:pkg("spirv-headers"):installdir():gsub("\\", "/")
         local grammar_dir = path.join(spirv_path, "include", "spirv", "unified1")
 
         local glsl_grammar_file = path.join(grammar_dir, "extinst.glsl.std.450.grammar.json")
@@ -57,12 +59,12 @@ add_slang_target("slang-lookup-tables", {
         local spirv_generated_source = path.join(output_dir, "slang-spirv-core-grammar-embed.cpp")
         os.mkdir(output_dir)
 
-        os.vrunv("$(projectdir)/generators/slang-lookup-generator", {
+        os.vrunv("$(buildir)/generators/slang-lookup-generator", {
             glsl_grammar_file, glsl_generated_source, "GLSLstd450", "GLSLstd450",
             "spirv/unified1/GLSL.std.450.h",
         })
 
-        os.vrunv("$(projectdir)/generators/slang-spirv-embed-generator", {
+        os.vrunv("$(buildir)/generators/slang-spirv-embed-generator", {
             spirv_grammar_file, spirv_generated_source
         })
     end
@@ -75,9 +77,9 @@ add_slang_target("slang-reflect-headers", {
         { "$(buildir)/ast-reflect", { public = true } }
     },
     deps = {
-        { "slang-cpp-extractor" }
+        { "slang-cpp-extractor", { public = false } }
     },
-    before_build = function ()
+    before_build = function()
         import("core.project.config")
         local working_dir = path.join(os.scriptdir())
         local output_dir = path.absolute(path.join(config.buildir(), "ast-reflect"))
@@ -106,13 +108,13 @@ add_slang_target("slang-reflect-headers", {
         table.insert(args, "-output-fields")
         table.insert(args, "-mark-suffix")
         table.insert(args, "_CLASS")
-        os.vrunv("$(projectdir)/generators/slang-cpp-extractor", args)
+        os.vrunv("$(buildir)/generators/slang-cpp-extractor", args)
     end
 })
 
 ---------------------------------------------------------------------------------
 
-local slang_deps_args = {
+local slang_link_args = {
     "core",
     "prelude",
     "compiler-core",
@@ -139,52 +141,43 @@ add_slang_target("slang-common-objects", {
     includes = {
         { "$(projectdir)", "$(buildir)", { public = false } }
     },
-    files = { {
-        "./*.cpp",
-        "../slang-record-replay/record/*.cpp",
-        "../slang-record-replay/util/*.cpp",
-    } },
+    files = {
+        { "./*.cpp", "../slang-record-replay/record/*.cpp", "../slang-record-replay/util/*.cpp" }
+    },
     config_files = {
         { "$(projectdir)/slang-tag-version.h.in", { filename = "slang-tag-version.h", pattern = "@(.-)@", public = true } },
     },
     defines = {
         { "SLANG_USE_SYSTEM_SPIRV_HEADER" }
     },
-    deps = { slang_deps_args },
+    deps = { slang_link_args },
     packages = { slang_packages_args },
 })
 
 add_slang_target("slang-without-embedded-core-module", {
+    fence = true,
     kind = "shared",
+    export_macro_prefix = "SLANG",
     includes = {
         slang_public_includes,
     },
     deps = {
-        slang_deps_args,
-        { "slang-common-objects",
-          "slang-no-embedded-core-module",
-          "slang-embedded-core-module-source",
-          { public = false },
-        }
+        slang_link_args,
+        { "slang-common-objects", "slang-no-embedded-core-module", "slang-embedded-core-module-source", { public = false } }
     },
     packages = { slang_packages_args },
-    output_dir = "$(projectdir)/generators"
+    output_dir = "$(buildir)/generators",
+    install_dir = "$(buildir)/generators",
 })
 
 add_slang_target("slang", {
-    default = true,
     kind = "shared",
     includes = {
         slang_public_includes,
     },
     deps = {
-        slang_deps_args,
-        { "slang-embedded-core-module",
-          "slang-embedded-core-module-source",
-          "slang-common-objects",
-          { public = false },
-        }
+        slang_link_args,
+        { "slang-embedded-core-module", "slang-embedded-core-module-source", "slang-common-objects", { public = false } }
     },
     packages = { slang_packages_args },
 })
-
