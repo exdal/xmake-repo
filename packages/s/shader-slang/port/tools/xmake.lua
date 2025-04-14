@@ -19,7 +19,6 @@ local add_generator = function(dir, options)
             { "core", { public = false } }
         },
         output_dir = "$(buildir)/generators",
-        install_dir = "$(buildir)/generators",
         defines = {
             options.defines or {}
         },

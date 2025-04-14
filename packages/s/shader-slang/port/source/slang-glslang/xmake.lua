@@ -11,7 +11,8 @@ add_slang_target("slang-glslang", {
     },
     ldflags = {
         { "-Wl,--exclude-libs,ALL" }
-    }
+    },
+    output_dir = "$(buildir)/generators",
 })
 
 

@@ -167,7 +167,6 @@ add_slang_target("slang-without-embedded-core-module", {
     },
     packages = { slang_packages_args },
     output_dir = "$(buildir)/generators",
-    install_dir = "$(buildir)/generators",
 })
 
 add_slang_target("slang", {
@@ -180,4 +179,5 @@ add_slang_target("slang", {
         { "slang-embedded-core-module", "slang-embedded-core-module-source", "slang-common-objects", { public = false } }
     },
     packages = { slang_packages_args },
+    output_dir = "$(buildir)/generators",
 })

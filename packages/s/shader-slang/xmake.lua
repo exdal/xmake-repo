@@ -25,8 +25,8 @@ package("shader-slang")
             slang_version = package:version_str(),
         })
         os.cp("include/*.h", package:installdir("include"))
-        os.trycp(path.join(package:buildir(), "**.so"), package:installdir("lib"))
-        os.trycp(path.join(package:buildir(), "**.dll"), package:installdir("lib"))
+        os.trycp(path.join(package:buildir(), "generators", "*slang.*"), package:installdir("lib"))
+        os.trycp(path.join(package:buildir(), "generators", "*slang-glslang.*"), package:installdir("lib"))
     end)
 package_end()
 
