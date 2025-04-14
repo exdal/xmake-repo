@@ -17,7 +17,7 @@ package("shader-slang")
 
     on_install("windows", "linux", function (package)
         local root = path.join(os.scriptdir(), "port")
-        for _, file in ipairs(os.files(path.join(root, "**.lua"))) do
+        for _, file in ipairs(os.files(path.join(root, "**.*"))) do
             os.cp(file, path.relative(file, root))
         end
 

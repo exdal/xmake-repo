@@ -21,10 +21,10 @@ add_slang_target("slang-embedded-core-module", {
     files = {
         { "./slang-embedded-core-module.cpp" }
     },
-    deps = {
-        { "core", "slang-bootstrap", { public = false } }
-    },
 --  ── common args end ─────────────────────────────────────────────────
+    deps = {
+        { "core", "slang-bootstrap", { public = false } },
+    },
     defines = {
         { "SLANG_EMBED_CORE_MODULE", { public = false } }
     },

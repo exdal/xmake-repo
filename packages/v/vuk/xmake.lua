@@ -13,6 +13,8 @@ package("vuk")
     add_versions("2025.04.08.1", "7831d3e7030ed51a3a6466120770718404449c6c")
     add_versions("2025.04.09",   "d8b6e6462c01f7ce7520671ba1fda4f3152da2c1")
     add_versions("2025.04.14",   "b90891644b0ac8e9f77e395fc58e3c40b4091b6c")
+    add_versions("2025.04.14.1", "23dbfb0b21ae426d5d2e10b2445a2f81b2257bdd")
+    add_versions("2025.04.15",   "e4c5e487b25cb98dcc0234653ca986f8504444ee")
 
     add_configs("debug_allocations", { description = "Debug VMA allocations", default = false, type = "boolean" })
 

@@ -156,7 +156,7 @@ add_slang_target("slang-common-objects", {
 
 add_slang_target("slang-without-embedded-core-module", {
     fence = true,
-    kind = "shared",
+    kind = "object",
     export_macro_prefix = "SLANG",
     includes = {
         slang_public_includes,
@@ -173,6 +173,9 @@ add_slang_target("slang", {
     kind = "shared",
     includes = {
         slang_public_includes,
+    },
+    files = {
+        "./what-the-fuck.cpp",
     },
     deps = {
         slang_link_args,
