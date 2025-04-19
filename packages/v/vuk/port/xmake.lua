@@ -60,17 +60,17 @@ target("vuk")
     end
 
     on_config(function (target)
-        if target:has_tool("cc", "cl") then
+        if target:has_tool("cxx", "msvc", "cl") then
             target:add("defines", "VUK_COMPILER_MSVC=1", { force = true, public = true })
             target:add("cxflags", "/permissive- /Zc:char8_t- /wd4068", { public = false })
-        elseif target:has_tool("cc", "clang_cl") then
+        elseif target:has_tool("cxx", "clang_cl", "clang-cl") then
             target:add("defines", "VUK_COMPILER_CLANGCL=1", { force = true, public = true })
             target:add("cxflags", "-Wno-nullability-completeness", { public = false })
             target:add("cxflags", "/permissive- /Zc:char8_t- /wd4068", { public = false })
-        elseif target:has_tool("cc", "clang") then
+        elseif target:has_tool("cxx", "clang", "clangxx") then
             target:add("defines", "VUK_COMPILER_CLANGPP=1", { force = true, public = true })
             target:add("cxflags", "-fno-char8_t -Wno-nullability-completeness", { public = false })
-        elseif target:has_tool("cc", "gcc") then
+        elseif target:has_tool("cxx", "gcc", "gxx") then
             target:add("defines", "VUK_COMPILER_GPP=1", { force = true, public = true })
             target:add("cxflags", "-fno-char8_t", { public = false })
         end

@@ -35,7 +35,7 @@ function add_slang_target(name, options)
             end
 
             target:add("defines", "SLANG_COMPILER")
-            if target:has_tool("cc", "cl") or target:has_tool("cc", "clang_cl") then
+            if target:has_tool("cxx", "cl", "msvc") or target:has_tool("cxx", "clang_cl", "clang-cl") then
                 target:add("defines", "_UNICODE", { force = true, public = true  })
                 target:add("defines", "UNICODE", { force = true, public = true  })
                 target:add("defines", "WIN32_LEAN_AND_MEAN", { force = true, public = true  })
@@ -44,9 +44,9 @@ function add_slang_target(name, options)
                 target:add("defines", "_WIN32", { force = true, public = true  })
 
                 target:add("defines", "SLANG_VC=14", { force = true, public = true })
-            elseif target:has_tool("cc", "clang") then
+            elseif target:has_tool("cxx", "clang", "clangxx") then
                 target:add("defines", "SLANG_CLANG=1", { force = true, public = true })
-            elseif target:has_tool("cc", "gcc") then
+            elseif target:has_tool("cxx", "gcc", "gxx") then
                 target:add("defines", "SLANG_GCC=1", { force = true, public = true })
             end
 
