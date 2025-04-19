@@ -5,11 +5,10 @@ package("imguizmo")
     add_urls("https://github.com/CedricGuillemet/ImGuizmo.git")
 
     add_versions("v1.91.6-docking", "b10e91756d32395f5c1fefd417899b657ed7cb88")
-
-    add_deps("imgui v1.91.6-docking")
+    add_versions("v1.91.8-docking", "2310acda820d7383d4c4884b7945ada92cd16a47")
 
     on_load(function (package)
-        local v = package:version():split("%+")[1]
+        local v = package:version()
         package:add("deps", "imgui " .. v)
     end)
 
