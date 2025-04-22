@@ -16,15 +16,30 @@ package("vuk")
     add_versions("2025.04.14.1", "23dbfb0b21ae426d5d2e10b2445a2f81b2257bdd")
     add_versions("2025.04.15",   "e4c5e487b25cb98dcc0234653ca986f8504444ee")
     add_versions("2025.04.19",   "75771a95ca380af9323eaffd62186ce957c793ec")
+    add_versions("2025.04.22",   "4b9918436e48b91fc89164b54fbb3cbafb6331de")
 
     add_configs("debug_allocations", { description = "Debug VMA allocations", default = false, type = "boolean" })
+    add_configs("dxc", { description = "Enable HLSL compiling through DXC", default = false, type = "boolean" })
+    add_configs("shaderc", { description = "Enable GLSL compiling through shaderc", default = false, type = "boolean" })
 
     add_deps("spirv-cross 1.4.309+0")
     add_deps("function2")
 
+    on_load("windows", "linux", function (package)
+        if package:config("dxc") then
+            package:add("defines", "VUK_USE_DXC=1")
+        end
+
+        if package:config("shaderc") then
+            package:add("defines", "VUK_USE_SHADERC=1")
+        end
+    end)
+
     on_install("windows|x64", "linux|x86_64", function (package)
         local configs = {}
         configs.debug_allocations = package:config("debug_allocations")
+        configs.dxc = package:config("dxc")
+        configs.shaderc = package:config("shaderc")
         os.cp(path.join(os.scriptdir(), "port", "xmake.lua"), "xmake.lua")
 
         import("package.tools.xmake").install(package, configs)

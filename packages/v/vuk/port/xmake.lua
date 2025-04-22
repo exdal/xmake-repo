@@ -14,8 +14,34 @@ add_requires("vk-bootstrap v1.4.307")
 
 option("debug_allocations")
     set_default(false)
+    set_showmenu(true)
     add_defines("VUK_DEBUG_ALLOCATIONS=1")
-option_end()
+
+option("dxc")
+    set_default(false)
+    set_showmenu(true)
+    add_defines("VUK_USE_DXC=1", { public = true })
+
+    add_files("src/shader_compilers/dxc.cpp")
+    add_cxxincludes("$(env VULKAN_SDK)/Include", { public = true })
+    add_linkdirs("$(env VULKAN_SDK)/Lib", { public = true })
+
+    add_links("dxcompiler")
+
+option("shaderc")
+    set_default(false)
+    set_showmenu(true)
+    add_defines("VUK_USE_SHADERC=1", { public = true })
+
+    add_files("src/shader_compilers/shaderc.cpp")
+    add_cxxincludes("$(env VULKAN_SDK)/Include", { public = true })
+    add_linkdirs("$(env VULKAN_SDK)/Lib", { public = true })
+
+    if is_plat("windows") then
+        add_links("shaderc_shared")
+    else
+        add_links("shaderc_combined")
+    end
 
 target("vuk")
     set_kind("static")
@@ -26,7 +52,9 @@ target("vuk")
     remove_files("src/shader_compilers/**")
     remove_files("src/extra/**")
 
-    add_options("debug_allocations")
+    set_options("debug_allocations")
+    set_options("dxc")
+    set_options("shaderc")
 
     add_defines("VUK_DISABLE_EXCEPTIONS", { force = true, public = true })
     -- public packages
