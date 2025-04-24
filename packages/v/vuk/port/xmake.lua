@@ -22,26 +22,20 @@ option("dxc")
     set_showmenu(true)
     add_defines("VUK_USE_DXC=1", { public = true })
 
-    add_files("src/shader_compilers/dxc.cpp")
     add_cxxincludes("$(env VULKAN_SDK)/Include", { public = true })
     add_linkdirs("$(env VULKAN_SDK)/Lib", { public = true })
 
-    add_links("dxcompiler")
+    add_links("dxcompiler", { public = true })
 
 option("shaderc")
     set_default(false)
     set_showmenu(true)
     add_defines("VUK_USE_SHADERC=1", { public = true })
 
-    add_files("src/shader_compilers/shaderc.cpp")
     add_cxxincludes("$(env VULKAN_SDK)/Include", { public = true })
     add_linkdirs("$(env VULKAN_SDK)/Lib", { public = true })
 
-    if is_plat("windows") then
-        add_links("shaderc_shared")
-    else
-        add_links("shaderc_combined")
-    end
+    add_links("shaderc_shared", { public = true })
 
 target("vuk")
     set_kind("static")
@@ -49,12 +43,22 @@ target("vuk")
     add_files("src/**.cpp")
     add_includedirs("include/", { public = true })
 
-    remove_files("src/shader_compilers/**")
     remove_files("src/extra/**")
 
     set_options("debug_allocations")
     set_options("dxc")
     set_options("shaderc")
+
+    if not has_config("dxc") then
+        remove_files("src/shader_compilers/dxc.cpp")
+    end
+
+    if not has_config("shaderc") then
+        remove_files("src/shader_compilers/shaderc.cpp")
+    end
+
+    remove_files("src/shader_compilers/slang.cpp")
+    remove_files("src/shader_compilers/vcc.cpp")
 
     add_defines("VUK_DISABLE_EXCEPTIONS", { force = true, public = true })
     -- public packages
@@ -97,7 +101,7 @@ target("vuk")
             target:add("cxflags", "/permissive- /Zc:char8_t- /wd4068", { public = false })
         elseif target:has_tool("cxx", "clang", "clangxx") then
             target:add("defines", "VUK_COMPILER_CLANGPP=1", { force = true, public = true })
-            target:add("cxflags", "-fno-char8_t -Wno-nullability-completeness", { public = false })
+            target:add("cxflags", "-fno-char8_t -Wno-nullability-completeness -fms-extensions", { public = false })
         elseif target:has_tool("cxx", "gcc", "gxx") then
             target:add("defines", "VUK_COMPILER_GPP=1", { force = true, public = true })
             target:add("cxflags", "-fno-char8_t", { public = false })
