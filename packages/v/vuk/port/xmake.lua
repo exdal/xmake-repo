@@ -20,45 +20,40 @@ option("debug_allocations")
 option("dxc")
     set_default(false)
     set_showmenu(true)
-    add_defines("VUK_USE_DXC=1", { public = true })
-
-    add_cxxincludes("$(env VULKAN_SDK)/Include", { public = true })
-    add_linkdirs("$(env VULKAN_SDK)/Lib", { public = true })
-
-    add_links("dxcompiler", { public = true })
 
 option("shaderc")
     set_default(false)
     set_showmenu(true)
-    add_defines("VUK_USE_SHADERC=1", { public = true })
-
-    add_cxxincludes("$(env VULKAN_SDK)/Include", { public = true })
-    add_linkdirs("$(env VULKAN_SDK)/Lib", { public = true })
-
-    add_links("shaderc_shared", { public = true })
 
 target("vuk")
     set_kind("static")
     add_languages("cxx20")
-    add_files("src/**.cpp")
     add_includedirs("include/", { public = true })
 
-    remove_files("src/extra/**")
+    add_files("src/*.cpp")
+    add_files("src/runtime/**.cpp")
 
     set_options("debug_allocations")
     set_options("dxc")
     set_options("shaderc")
 
-    if not has_config("dxc") then
-        remove_files("src/shader_compilers/dxc.cpp")
+    if has_config("dxc") then
+        add_defines("VUK_USE_DXC=1", { public = true })
+        add_includedirs("$(env VULKAN_SDK)/Include", { public = true })
+        add_linkdirs("$(env VULKAN_SDK)/Lib", { public = true })
+
+        add_files("src/shader_compilers/dxc.cpp")
+        add_links("dxcompiler", { public = true })
     end
 
-    if not has_config("shaderc") then
-        remove_files("src/shader_compilers/shaderc.cpp")
-    end
+    if has_config("shaderc") then
+        add_defines("VUK_USE_SHADERC=1", { public = true })
+        add_includedirs("$(env VULKAN_SDK)/Include", { public = true })
+        add_linkdirs("$(env VULKAN_SDK)/Lib", { public = true })
 
-    remove_files("src/shader_compilers/slang.cpp")
-    remove_files("src/shader_compilers/vcc.cpp")
+        add_files("src/shader_compilers/shaderc.cpp")
+        add_links("shaderc_shared", { public = true })
+    end
 
     add_defines("VUK_DISABLE_EXCEPTIONS", { force = true, public = true })
     -- public packages

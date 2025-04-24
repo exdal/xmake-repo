@@ -28,10 +28,25 @@ package("vuk")
     on_load("windows", "linux", function (package)
         if package:config("dxc") then
             package:add("defines", "VUK_USE_DXC=1")
+
+            package:add("includedirs", "$(env VULKAN_SDK)/Include")
+
+            package:add("linkdirs", "$(env VULKAN_SDK)/Lib")
+            package:add("links", "dxcompiler")
         end
 
         if package:config("shaderc") then
             package:add("defines", "VUK_USE_SHADERC=1")
+
+            package:add("includedirs", "$(env VULKAN_SDK)/Include")
+
+            package:add("linkdirs", "$(env VULKAN_SDK)/Lib")
+
+            if is_plat("windows") then
+                package:add("links", "shaderc_shared")
+            else
+                package:add("links", "shaderc_combined")
+            end
         end
     end)
 
