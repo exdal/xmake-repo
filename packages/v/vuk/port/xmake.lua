@@ -17,14 +17,6 @@ option("debug_allocations")
     set_showmenu(true)
     add_defines("VUK_DEBUG_ALLOCATIONS=1")
 
-option("dxc")
-    set_default(false)
-    set_showmenu(true)
-
-option("shaderc")
-    set_default(false)
-    set_showmenu(true)
-
 target("vuk")
     set_kind("static")
     add_languages("cxx20")
@@ -34,26 +26,6 @@ target("vuk")
     add_files("src/runtime/**.cpp")
 
     set_options("debug_allocations")
-    set_options("dxc")
-    set_options("shaderc")
-
-    if has_config("dxc") then
-        add_defines("VUK_USE_DXC=1", { public = true })
-        add_includedirs("$(env VULKAN_SDK)/Include", { public = true })
-        add_linkdirs("$(env VULKAN_SDK)/Lib", { public = true })
-
-        add_files("src/shader_compilers/dxc.cpp")
-        add_links("dxcompiler", { public = true })
-    end
-
-    if has_config("shaderc") then
-        add_defines("VUK_USE_SHADERC=1", { public = true })
-        add_includedirs("$(env VULKAN_SDK)/Include", { public = true })
-        add_linkdirs("$(env VULKAN_SDK)/Lib", { public = true })
-
-        add_files("src/shader_compilers/shaderc.cpp")
-        add_links("shaderc_shared", { public = true })
-    end
 
     add_defines("VUK_DISABLE_EXCEPTIONS", { force = true, public = true })
     -- public packages

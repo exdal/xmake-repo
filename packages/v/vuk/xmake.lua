@@ -25,31 +25,6 @@ package("vuk")
     add_deps("spirv-cross 1.4.309+0")
     add_deps("function2")
 
-    on_load("windows", "linux", function (package)
-        if package:config("dxc") then
-            package:add("defines", "VUK_USE_DXC=1")
-
-            package:add("includedirs", "$(env VULKAN_SDK)/Include")
-
-            package:add("linkdirs", "$(env VULKAN_SDK)/Lib")
-            package:add("links", "dxcompiler")
-        end
-
-        if package:config("shaderc") then
-            package:add("defines", "VUK_USE_SHADERC=1")
-
-            package:add("includedirs", "$(env VULKAN_SDK)/Include")
-
-            package:add("linkdirs", "$(env VULKAN_SDK)/Lib")
-
-            if is_plat("windows") then
-                package:add("links", "shaderc_shared")
-            else
-                package:add("links", "shaderc_combined")
-            end
-        end
-    end)
-
     on_install("windows|x64", "linux|x86_64", function (package)
         local configs = {}
         configs.debug_allocations = package:config("debug_allocations")
