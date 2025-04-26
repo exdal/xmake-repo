@@ -1,31 +1,37 @@
-package("imguizmo")
-    set_homepage("https://github.com/CedricGuillemet/ImGuizmo")
-    set_description("Immediate mode 3D gizmo for scene editing and other controls based on Dear Imgui")
+package("implot")
+    set_homepage("https://github.com/epezent/implot")
+    set_description("Immediate Mode Plotting")
+    set_license("MIT")
 
-    add_urls("https://github.com/CedricGuillemet/ImGuizmo.git")
+    add_urls("https://github.com/epezent/implot.git")
 
-    add_versions("v1.91.8-docking", "2310acda820d7383d4c4884b7945ada92cd16a47")
+    add_versions("v1.91.8-docking", "3da8bd34299965d3b0ab124df743fe3e076fa222")
+
+    add_configs("wchar32", {description = "Support ImWchar32", type = "boolean", default = false})
 
     on_load(function (package)
         local v = package:version()
         package:add("deps", "imgui " .. v)
     end)
 
-    on_install("macosx", "linux", "windows", "mingw", "android", "iphoneos", function (package)
+    on_install("windows", "linux", "macosx", "mingw", "android", "iphoneos", function (package)
         local imgui = package:dep("imgui")
         local configs = imgui:requireinfo().configs
+        configs.wchar32 = package:config("wchar32")
+
         if configs then
             configs = string.serialize(configs, {strip = true, indent = false})
         end
+
         local xmake_lua = ([[
             add_rules("mode.debug", "mode.release")
-            set_languages("c++14")
+            set_languages("c++11")
 
             add_requires("imgui %s", {configs = %s})
 
-            target("imguizmo")
+            target("implot")
                 set_kind("static")
-                add_files("*.cpp")
+                add_files("*.cpp|implot_demo.cpp")
                 add_headerfiles("*.h")
                 add_packages("imgui")
         ]]):format(imgui:version_str(), configs)
@@ -35,10 +41,10 @@ package("imguizmo")
 
     on_test(function (package)
         assert(package:check_cxxsnippets({test = [[
+            #include <implot.h>
             void test() {
-                ImGuiIO& io = ImGui::GetIO();
-                ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+                ImPlot::CreateContext();
+                ImPlot::DestroyContext();
             }
-        ]]}, {configs = {languages = "c++11"}, includes = {"imgui.h", "ImGuizmo.h"}}))
+        ]]}, {configs = {languages = "c++11"}}))
     end)
-package_end()
