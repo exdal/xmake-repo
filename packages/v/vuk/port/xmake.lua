@@ -17,6 +17,11 @@ option("debug_allocations")
     set_showmenu(true)
     add_defines("VUK_DEBUG_ALLOCATIONS=1")
 
+option("disable_exceptions")
+    set_default(false)
+    set_showmenu(true)
+    add_defines("VUK_DISABLE_EXCEPTIONS=1")
+
 target("vuk")
     set_kind("static")
     add_languages("cxx20")
@@ -26,6 +31,7 @@ target("vuk")
     add_files("src/runtime/**.cpp")
 
     set_options("debug_allocations")
+    set_options("disable_exceptions")
 
     add_defines("VUK_DISABLE_EXCEPTIONS", { force = true, public = true })
     -- public packages
