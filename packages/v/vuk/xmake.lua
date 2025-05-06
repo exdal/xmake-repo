@@ -19,6 +19,7 @@ package("vuk")
     add_versions("2025.04.22",   "4b9918436e48b91fc89164b54fbb3cbafb6331de")
     add_versions("2025.04.28",   "ceded9151342919a12a61617fc1fd5dcca99e0e4")
     add_versions("2025.04.29",   "024df778cfcb79d21fc63236aa5427fcb3823acf")
+    add_versions("2025.05.06",   "73fee60d5f23bf1f14a7b1f6d8b66e19d74b956b")
 
     add_configs("debug_allocations", { description = "Debug VMA allocations", default = false, type = "boolean" })
     add_configs("disable_exceptions", { description = "Disalbe exceptions", default = false, type = "boolean" })
@@ -29,6 +30,10 @@ package("vuk")
     on_load(function (package)
         if package:config("disable_exceptions") then
             package:add("defines", "VUK_DISABLE_EXCEPTIONS=1")
+        end
+
+        if package:config("debug_allocations") then
+            package:add("defines", "VUK_DEBUG_ALLOCATIONS=1")
         end
     end)
 

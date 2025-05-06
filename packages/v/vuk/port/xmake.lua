@@ -16,11 +16,13 @@ option("debug_allocations")
     set_default(false)
     set_showmenu(true)
     add_defines("VUK_DEBUG_ALLOCATIONS=1")
+option_end()
 
 option("disable_exceptions")
     set_default(false)
     set_showmenu(true)
     add_defines("VUK_DISABLE_EXCEPTIONS=1")
+option_end()
 
 target("vuk")
     set_kind("static")
