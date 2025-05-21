@@ -1,4 +1,4 @@
-package("imguizmo")
+package("imguizmo-lr")
     set_homepage("https://github.com/CedricGuillemet/ImGuizmo")
     set_description("Immediate mode 3D gizmo for scene editing and other controls based on Dear Imgui")
 
