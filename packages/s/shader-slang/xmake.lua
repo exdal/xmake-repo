@@ -6,7 +6,10 @@ package("shader-slang")
     add_urls("https://github.com/shader-slang/slang.git", { submodules = false })
 
     add_versions("v2025.6.3", "b9300bae08a77df6ef2efe2b62de14a13b10b9a4")
+    add_versions("v2025.9.2", "27c6e9b01f7386263bde90e16812be46327015c2")
+
     add_patches("v2025.6.3", path.join(os.scriptdir(), "patches", "v2025.6.3.patch"))
+    add_patches("v2025.9.2", path.join(os.scriptdir(), "patches", "v2025.9.2.patch"))
 
     add_configs("shared", { description = "Build shared library", default = true, type = "boolean", readonly = true })
 

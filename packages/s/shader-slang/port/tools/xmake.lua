@@ -49,8 +49,6 @@ add_slang_target("slang-cpp-parser", {
     export_type_as = "shared",
 })
 
-add_generator("slang-cpp-extractor", { deps = { "compiler-core", "slang-cpp-parser" } })
-
 add_generator("$(projectdir)/source/slangc", {
     name = "slang-bootstrap",
     deps = {
