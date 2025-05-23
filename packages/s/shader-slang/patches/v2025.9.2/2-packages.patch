@@ -1,0 +1,168 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 98eb4d9c3..a2489e0fb 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -160,6 +160,16 @@ advanced_option(
+     "Build using system unordered dense"
+     OFF
+ )
++advanced_option(
++    SLANG_USE_SYSTEM_SPIRV_TOOLS
++    "Build using system SPIR-V Tools"
++    OFF
++)
++advanced_option(
++    SLANG_USE_SYSTEM_GLSLANG
++    "Build using system glslang"
++    OFF
++)
+ 
+ option(
+     SLANG_SPIRV_HEADERS_INCLUDE_DIR
+diff --git a/cmake/SlangTarget.cmake b/cmake/SlangTarget.cmake
+index cadd33ac0..1fc5e478a 100644
+--- a/cmake/SlangTarget.cmake
++++ b/cmake/SlangTarget.cmake
+@@ -430,14 +430,14 @@ function(slang_add_target dir type)
+         target_include_directories(
+             ${target}
+             PRIVATE
+-                $<TARGET_PROPERTY:${include_from},INTERFACE_INCLUDE_DIRECTORIES>
++                ${include_from}
+         )
+     endforeach()
+     foreach(include_from ${ARG_INCLUDE_FROM_PUBLIC})
+         target_include_directories(
+             ${target}
+             PUBLIC
+-                $<TARGET_PROPERTY:${include_from},INTERFACE_INCLUDE_DIRECTORIES>
++                ${include_from}
+         )
+     endforeach()
+ 
+diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
+index 55d9e4941..4ed0703dc 100644
+--- a/external/CMakeLists.txt
++++ b/external/CMakeLists.txt
+@@ -58,6 +58,9 @@ if(NOT ${SLANG_USE_SYSTEM_MINIZ})
+         set_property(TARGET miniz PROPERTY C_COMPILER_LAUNCHER)
+         set_property(TARGET miniz PROPERTY MSVC_DEBUG_INFORMATION_FORMAT "")
+     endif()
++else()
++    find_package(miniz REQUIRED)
++    add_library(miniz ALIAS miniz::miniz)
+ endif()
+ 
+ # LZ4
+@@ -114,44 +117,56 @@ if(NOT ${SLANG_USE_SYSTEM_SPIRV_HEADERS})
+             ${system}
+         )
+     endif()
++else()
++    find_package(SPIRV-Headers REQUIRED)
++    add_library(SPIRV-Headers ALIAS SPIRV-Headers::SPIRV-Headers)
+ endif()
+ 
+ if(SLANG_ENABLE_SLANG_GLSLANG)
+     # SPIRV-Tools
+-    set(SPIRV_TOOLS_BUILD_STATIC ON)
+-    set(SPIRV_WERROR OFF)
+-    # Headers
+-    if(NOT SLANG_OVERRIDE_SPIRV_HEADERS_PATH)
+-        set(SPIRV_HEADER_DIR "${CMAKE_CURRENT_LIST_DIR}/spirv-headers/")
++    if(NOT ${SLANG_USE_SYSTEM_SPIRV_TOOLS})
++        set(SPIRV_TOOLS_BUILD_STATIC ON)
++        set(SPIRV_WERROR OFF)
++        # Headers
++        if(NOT SLANG_OVERRIDE_SPIRV_HEADERS_PATH)
++            set(SPIRV_HEADER_DIR "${CMAKE_CURRENT_LIST_DIR}/spirv-headers/")
++        else()
++            set(SPIRV_HEADER_DIR ${SLANG_OVERRIDE_SPIRV_HEADERS_PATH})
++        endif()
++        set(SPIRV_SKIP_TESTS ON)
++        # Tools
++        if(NOT SLANG_OVERRIDE_SPIRV_TOOLS_PATH)
++            add_subdirectory(spirv-tools EXCLUDE_FROM_ALL ${system})
++        else()
++            add_subdirectory(
++                ${SLANG_OVERRIDE_SPIRV_TOOLS_PATH}
++                spirv-tools
++                EXCLUDE_FROM_ALL
++                ${system}
++            )
++        endif()
+     else()
+-        set(SPIRV_HEADER_DIR ${SLANG_OVERRIDE_SPIRV_HEADERS_PATH})
+-    endif()
+-    set(SPIRV_SKIP_TESTS ON)
+-    # Tools
+-    if(NOT SLANG_OVERRIDE_SPIRV_TOOLS_PATH)
+-        add_subdirectory(spirv-tools EXCLUDE_FROM_ALL ${system})
+-    else()
+-        add_subdirectory(
+-            ${SLANG_OVERRIDE_SPIRV_TOOLS_PATH}
+-            spirv-tools
+-            EXCLUDE_FROM_ALL
+-            ${system}
+-        )
++        find_package(SPIRV-Tools REQUIRED)
+     endif()
+ 
+     # glslang
+-    set(SKIP_GLSLANG_INSTALL ON)
+-    set(ENABLE_OPT ON)
+-    set(ENABLE_PCH OFF)
+-    if(NOT SLANG_OVERRIDE_GLSLANG_PATH)
+-        add_subdirectory(glslang EXCLUDE_FROM_ALL ${system})
++    if(NOT ${SLANG_USE_SYSTEM_GLSLANG})
++        set(SKIP_GLSLANG_INSTALL ON)
++        set(ENABLE_OPT ON)
++        set(ENABLE_PCH OFF)
++        if(NOT SLANG_OVERRIDE_GLSLANG_PATH)
++            add_subdirectory(glslang EXCLUDE_FROM_ALL ${system})
++        else()
++            add_subdirectory(
++                ${SLANG_OVERRIDE_GLSLANG_PATH}
++                glslang
++                EXCLUDE_FROM_ALL
++                ${system}
++            )
++        endif()
+     else()
+-        add_subdirectory(
+-            ${SLANG_OVERRIDE_GLSLANG_PATH}
+-            glslang
+-            EXCLUDE_FROM_ALL
+-            ${system}
+-        )
++        find_package(glslang REQUIRED)
++        add_library(glslang ALIAS glslang::glslang)
+     endif()
+ endif()
+ 
+diff --git a/source/core/CMakeLists.txt b/source/core/CMakeLists.txt
+index a8c19f4b5..961d54528 100644
+--- a/source/core/CMakeLists.txt
++++ b/source/core/CMakeLists.txt
+@@ -4,7 +4,7 @@ slang_add_target(
+     EXPORT_MACRO_PREFIX SLANG
+     EXCLUDE_FROM_ALL
+     USE_EXTRA_WARNINGS
+-    LINK_WITH_PRIVATE miniz lz4_static Threads::Threads ${CMAKE_DL_LIBS}
++    LINK_WITH_PRIVATE miniz lz4 Threads::Threads ${CMAKE_DL_LIBS}
+     LINK_WITH_PUBLIC unordered_dense::unordered_dense
+     INCLUDE_DIRECTORIES_PUBLIC
+         ${slang_SOURCE_DIR}/source
+diff --git a/source/slang-rt/CMakeLists.txt b/source/slang-rt/CMakeLists.txt
+index b915cc5ef..0b8d9408b 100644
+--- a/source/slang-rt/CMakeLists.txt
++++ b/source/slang-rt/CMakeLists.txt
+@@ -5,7 +5,7 @@ if(SLANG_ENABLE_SLANGRT)
+         # This compiles 'core' again with the SLANG_RT_DYNAMIC_EXPORT macro defined
+         EXTRA_SOURCE_DIRS ${slang_SOURCE_DIR}/source/core
+         USE_EXTRA_WARNINGS
+-        LINK_WITH_PRIVATE miniz lz4_static Threads::Threads ${CMAKE_DL_LIBS}
++        LINK_WITH_PRIVATE miniz lz4 Threads::Threads ${CMAKE_DL_LIBS}
+         LINK_WITH_PUBLIC unordered_dense::unordered_dense
+         EXPORT_MACRO_PREFIX SLANG_RT
+         INCLUDE_DIRECTORIES_PUBLIC ${slang_SOURCE_DIR}/include
