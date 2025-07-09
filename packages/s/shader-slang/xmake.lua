@@ -8,11 +8,13 @@ package("shader-slang")
             {version = function (version) return version:gsub("v", "") end})
 
         add_versions("v2025.10.4", "f4199d9cb32f93410444713adfe880da2b665a9e13f2f8e23fdbff06068a9ff3")
+        add_versions("v2025.12.1", "02018cc923a46c434e23b166ef13c14165b0a0c4b863279731c4f6c4898fbf8e")
     elseif is_host("linux") then
         add_urls("https://github.com/shader-slang/slang/releases/download/v$(version)/slang-$(version)-linux-x86_64.tar.gz",
             {version = function (version) return version:gsub("v", "") end})
 
         add_versions("v2025.10.4", "c2edcfdada38feb345725613c516a842700437f6fa55910b567b9058c415ce8f")
+        add_versions("v2025.12.1", "8f34b98391562ce6f97d899e934645e2c4466a02e66b69f69651ff1468553b27")
     end
 
     on_install("windows|x64", "linux|x86_64", function (package)
